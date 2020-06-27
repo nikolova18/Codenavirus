@@ -1,0 +1,99 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+ 
+namespace CodenaVirusCode
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //въвеждане на измеренията на масива
+            Console.WriteLine("Enter the count of rows:");
+            int rows = int.Parse(Console.ReadLine());
+
+            char[][] world = new char[rows][];
+            //въвеждане на редовете на масива
+            for (int i = 0; i < rows; i++)
+            {
+                Console.WriteLine($"Enter the {i} row:");
+                world[i] = Console.ReadLine()
+                    .Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(char.Parse)
+                    .ToArray();
+
+            }
+            Console.WriteLine("Enter the coordinates of the first infected:");
+            int[] firstInfected = Console.ReadLine().Split(' ').Select(int.Parse).ToArray();
+            world[firstInfected[0]][firstInfected[1]] = 'I';
+
+            int[] currentStatistic = { 0, 0, 0, 0 };
+            int days = 0;
+            int infected = 1;
+            int recovered = 0;
+            int uninfected = world.Length * world.Length;
+            var dictionaryInfected = new Dictionary<int[], int>();//мисълта ми тук е да запазвам координатите (key) на болните и дните(value)
+            dictionaryInfected.Add(firstInfected, 3);
+            while (uninfected > 0)
+            {
+                for (int row = 0; row < world.Length; row++)
+                {
+                    for (int col = 0; col < world.GetLength(0); col++)
+                    {
+                        if (world[row][col] == 'I')
+                        {
+                            //тук вече нещо се обърква в разболяването на другите??
+                            firstInfected.SetValue(row, 0);
+                            firstInfected.SetValue(col, 1);
+                            int[] currentCoordinates = Codenavirus(world, firstInfected);
+                            int rowCurrent = currentCoordinates[0];
+                            int colCurrent = currentCoordinates[1];
+                            world[rowCurrent][colCurrent] = 'I';
+                            if(uninfected>0)uninfected--;
+                            infected++;
+                        }
+                    }
+                }
+                days++;
+
+            }
+            //принтирам крайният резултат от статистиката
+            Console.WriteLine(uninfected + " " + infected + " " + days);
+
+            for (int i = 0; i < world.Length; i++)
+            {
+                for (int j = 0; j < world.GetLength(0); j++)
+                {
+                    Console.Write(world[i][j]);
+                }
+                Console.WriteLine();
+            }
+
+        }
+        static int[] Codenavirus(char[][] world, int[] firstInfected)
+        {
+            int firstInfectedRow = firstInfected[0];
+            int firstInfectedColumn = firstInfected[1];
+            int[] coordinates = { 0, 0 };
+            if (firstInfectedColumn + 1 < world.GetLength(0) && world[firstInfectedRow][firstInfectedColumn + 1] == '#')
+            {
+                coordinates.SetValue(firstInfectedColumn + 1, 1);
+            }
+            else if (firstInfectedRow - 1 >= 0 && world[firstInfectedRow - 1][firstInfectedColumn] == '#')
+            {
+                coordinates.SetValue(firstInfectedRow - 1, 0);
+            }
+            else if (firstInfectedColumn - 1 >= 0 && world[firstInfectedRow][firstInfectedColumn - 1] == '#')
+            {
+                coordinates.SetValue(firstInfectedColumn - 1, 1);
+            }
+            else if (firstInfectedRow + 1 < world.Length && world[firstInfectedRow + 1][firstInfectedColumn] == '#')
+            {
+                coordinates.SetValue(firstInfectedRow+1, 0);
+            }
+            return coordinates;
+        }
+    }
+}
